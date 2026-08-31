@@ -1,0 +1,443 @@
+/*
+ * Mörkt tema genomgående — sidan är tänkt att kunna stå uppe på en extraskärm
+ * hela dagen. Typografin skalar med clamp() så samma layout fungerar på en telefon
+ * i handen och på en skärm man läser av tvärs över rummet.
+ */
+
+:root {
+  --bg: #0a0c10;
+  --bg-glow: #121722;
+  --surface: #141922;
+  --surface-raised: #1b2230;
+  --line: #232b39;
+  --line-soft: #1a2130;
+
+  --text: #e9eef6;
+  --text-dim: #9aa6b8;
+  --text-faint: #6b7789;
+
+  --live: #ff5f56;
+  --live-glow: rgba(255, 95, 86, 0.16);
+
+  /* En accent per plats, så man ser var något händer innan man läst namnet. */
+  --avicii: #f5a524;
+  --arena3: #38cfe0;
+  --hovet: #a78bfa;
+  --annexet: #5ed49a;
+  --slakthuset: #ef5d94;
+
+  --radius: 16px;
+  --radius-sm: 9px;
+
+  --font: ui-sans-serif, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, "Noto Sans", sans-serif;
+  --font-num: ui-monospace, "SF Mono", "Cascadia Mono", "Segoe UI Mono", Menlo, monospace;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(1100px 600px at 15% -10%, var(--bg-glow), transparent 60%),
+    radial-gradient(900px 500px at 100% 0%, #101a20, transparent 55%),
+    var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: clamp(15px, 0.6vw + 13px, 18px);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+.page {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: clamp(20px, 3vw, 44px) clamp(16px, 3vw, 40px) 64px;
+}
+
+/* ---------- Sidhuvud ---------- */
+
+.masthead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.masthead__identity {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Globen, förenklad till sin siluett. */
+.globe {
+  width: clamp(34px, 3vw, 46px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle at 34% 30%, #ffd478, var(--avicii) 52%, #a8620a);
+  box-shadow: 0 0 26px rgba(245, 165, 36, 0.3);
+  flex: none;
+}
+
+.masthead h1 {
+  margin: 0;
+  font-size: clamp(1.5rem, 2.4vw, 2.1rem);
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+
+.masthead__places {
+  margin: 2px 0 0;
+  color: var(--text-faint);
+  font-size: 0.83rem;
+  letter-spacing: 0.02em;
+}
+
+.masthead__meta {
+  text-align: right;
+  margin-left: auto;
+}
+
+.masthead__date {
+  margin: 0;
+  color: var(--text-dim);
+  font-size: 0.95rem;
+}
+
+/* Bara veckodagen får versal. Svenskan skriver "31 augusti", inte "31 Augusti". */
+.masthead__date::first-letter {
+  text-transform: uppercase;
+}
+
+.masthead__clock {
+  margin: 2px 0 0;
+  font-family: var(--font-num);
+  font-size: clamp(1.4rem, 2.2vw, 1.9rem);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+/* ---------- Rubrikrad ---------- */
+
+.headline {
+  margin: clamp(24px, 3vw, 38px) 0 clamp(18px, 2vw, 26px);
+  font-size: clamp(1.35rem, 3vw, 2.1rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+  text-wrap: balance;
+}
+
+.headline em {
+  font-style: normal;
+  color: var(--live);
+}
+
+/* ---------- Sektioner ---------- */
+
+.section {
+  margin-bottom: clamp(28px, 4vw, 48px);
+}
+
+.section__heading {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  margin: 0 0 16px;
+  font-size: 0.79rem;
+  font-weight: 650;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.section__rule {
+  flex: 1;
+  height: 1px;
+  background: var(--line-soft);
+}
+
+.grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 310px), 1fr));
+}
+
+/* ---------- Evenemangskort ---------- */
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  padding: 18px 18px 16px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.18s ease, transform 0.18s ease, background 0.18s ease;
+}
+
+/* Platsens accent som en stapel längs kortets vänsterkant. */
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: var(--accent, var(--line));
+}
+
+.card:hover,
+.card:focus-visible {
+  border-color: color-mix(in srgb, var(--accent, var(--line)) 45%, var(--line));
+  background: var(--surface-raised);
+  transform: translateY(-2px);
+  outline: none;
+}
+
+.card--live {
+  background: linear-gradient(180deg, var(--live-glow), transparent 55%), var(--surface);
+  border-color: color-mix(in srgb, var(--live) 34%, var(--line));
+}
+
+.card--done {
+  opacity: 0.42;
+}
+
+.card__top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.card__time {
+  font-family: var(--font-num);
+  font-size: clamp(1.5rem, 2.4vw, 1.95rem);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.card__title {
+  margin: 0;
+  font-size: clamp(1.02rem, 1.3vw, 1.2rem);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+  text-wrap: balance;
+}
+
+.card__subtitle {
+  margin: 3px 0 0;
+  color: var(--text-faint);
+  font-size: 0.85rem;
+}
+
+.card__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 3px;
+}
+
+.venue {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px 3px 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent, var(--line)) 14%, transparent);
+  color: color-mix(in srgb, var(--accent, var(--text)) 78%, var(--text));
+  font-size: 0.78rem;
+  font-weight: 550;
+  white-space: nowrap;
+}
+
+.venue::before {
+  content: "";
+  width: 6px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--accent, var(--text-faint));
+}
+
+.meta {
+  color: var(--text-faint);
+  font-size: 0.78rem;
+}
+
+/* ---------- Statusmärken ---------- */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 650;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.badge--live {
+  background: color-mix(in srgb, var(--live) 17%, transparent);
+  color: #ff9d97;
+}
+
+.badge--soon {
+  background: color-mix(in srgb, var(--avicii) 14%, transparent);
+  color: #f7c169;
+}
+
+.pulse {
+  width: 7px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--live);
+  animation: pulse 1.9s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(255, 95, 86, 0.5); }
+  50% { opacity: 0.62; box-shadow: 0 0 0 6px rgba(255, 95, 86, 0); }
+}
+
+/* ---------- Tomt läge ---------- */
+
+.empty {
+  padding: clamp(28px, 5vw, 52px);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  text-align: center;
+}
+
+.empty__lead {
+  margin: 0 0 6px;
+  font-size: clamp(1.1rem, 1.8vw, 1.35rem);
+  font-weight: 600;
+}
+
+.empty__sub {
+  margin: 0;
+  color: var(--text-dim);
+}
+
+/* ---------- Källhälsa ---------- */
+
+.sources {
+  margin-top: clamp(30px, 4vw, 52px);
+  padding-top: 18px;
+  border-top: 1px solid var(--line-soft);
+  color: var(--text-faint);
+  font-size: 0.78rem;
+}
+
+.sources__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  margin: 0 0 10px;
+  padding: 0;
+  list-style: none;
+}
+
+.sources__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.sources__item::before {
+  content: "";
+  width: 6px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #3ecf8e;
+  flex: none;
+}
+
+.sources__item--down::before {
+  background: var(--live);
+}
+
+.sources__item--down {
+  color: #ff9d97;
+}
+
+.sources__note {
+  margin: 0;
+  max-width: 68ch;
+  line-height: 1.55;
+}
+
+.sources__error {
+  margin: 8px 0 0;
+  padding: 10px 13px;
+  background: color-mix(in srgb, var(--live) 9%, transparent);
+  border-left: 2px solid var(--live);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  color: #ffb3ad;
+  font-family: var(--font-num);
+  font-size: 0.74rem;
+  word-break: break-word;
+}
+
+/* ---------- Laddningsskelett ---------- */
+
+.skeleton {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 310px), 1fr));
+}
+
+.skeleton__card {
+  height: 148px;
+  background: linear-gradient(100deg, var(--surface) 30%, var(--surface-raised) 50%, var(--surface) 70%);
+  background-size: 220% 100%;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  animation: shimmer 1.5s linear infinite;
+}
+
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -60% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* Storskärm: mer luft och större text, sidan ska gå att läsa på avstånd. */
+@media (min-width: 1500px) {
+  :root {
+    font-size: 19px;
+  }
+
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr));
+  }
+}

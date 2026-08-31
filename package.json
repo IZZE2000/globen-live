@@ -1,0 +1,14 @@
+{
+  "name": "globen-live",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Vad händer idag och just nu på Avicii Arena, 3Arena och i Slakthusområdet",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test \"test/**/*.test.js\""
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
