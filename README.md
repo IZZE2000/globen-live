@@ -1,6 +1,6 @@
 # Globen Live
 
-En sida som svarar på frågan *vad händer i Johanneshov just nu?* — Avicii Arena,
+En sida som svarar på frågan *vad händer i Globenområdet just nu?* — Avicii Arena,
 3Arena, Hovet, Annexet och Slakthusområdet i en vy, med live-status på dagens
 evenemang.
 
@@ -45,6 +45,12 @@ dagens, så det blir sällan mer än en handfull extra anrop.
 Området har ingen samlad kalender längre; `slakthusomradet.se` svarar 404 och
 används inte.
 
+Slakthusen låter dessutom gamla konserter ligga kvar publicerade, med utskrivet
+år ("Datum: 6 maj, 2026"). De tolkas alltså korrekt men hör inte hemma här, så
+allt som ligger före dagens början sorteras bort i `aggregate.js`. Gränsen går vid
+dygnets början och inte vid "nu", så att eftermiddagens konsert finns kvar under
+"Tidigare idag" resten av kvällen.
+
 ## Tre fällor koden är byggd runt
 
 **Tidszoner.** Listningssidan anger en match som `17:00+00:00` och eventsidan som
@@ -70,7 +76,11 @@ ligger nere ska inte dölja att det är match på 3Arena. Varje källas utfall v
 längst ned på sidan, och misslyckas någon skrivs det ut tillsammans med felet.
 
 Det är avsiktligt: utan den raden går det inte att skilja *lugn kväll i
-Johanneshov* från *skraparen är trasig*. Båda ser ut som noll evenemang.
+Globenområdet* från *skraparen är trasig*. Båda ser ut som noll evenemang.
+
+Klicka på en källa för att fälla ut vilka evenemang den levererat, med datum —
+siffran "6 event" säger annars inte vilka. Scenkolumnen visas bara när källan
+täcker flera scener, som Slakthusen.
 
 Misslyckas en uppdatering serveras senast lyckade data vidare, märkt med hur
 gammal den är.
@@ -88,7 +98,7 @@ src/
   jsonld.js            plockar schema.org-data ur HTML
   sources/             en fil per datakälla
 public/                gränssnittet
-test/                  40 tester, inklusive nätoberoende fixturer
+test/                  42 tester, inklusive nätoberoende fixturer
 ```
 
 `normalize.js` och `timezone.js` serveras även till webbläsaren, så statuslogiken

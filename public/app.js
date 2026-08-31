@@ -32,6 +32,9 @@ const dom = {
 
 let state = { events: [], sources: [], stale: false, staleReason: null, error: null };
 
+/** Vilken källa som är utfälld i källhälsan. Överlever omritningarna var 30:e sekund. */
+let expandedSourceId = null;
+
 /* ---------- Formatering ---------- */
 
 const dateFormatter = new Intl.DateTimeFormat('sv-SE', {
@@ -40,6 +43,38 @@ const dateFormatter = new Intl.DateTimeFormat('sv-SE', {
   month: 'long',
   timeZone: 'Europe/Stockholm',
 });
+
+/** Kompakt variant för de utfällda källistorna: "tors 3 sep". */
+const listDateFormatter = new Intl.DateTimeFormat('sv-SE', {
+  weekday: 'short',
+  day: 'numeric',
+  month: 'short',
+  timeZone: 'Europe/Stockholm',
+});
+
+/** Samma, men med årtal — arenorna släpper biljetter långt in på nästa år. */
+const listDateWithYearFormatter = new Intl.DateTimeFormat('sv-SE', {
+  day: 'numeric',
+  month: 'short',
+  year: 'numeric',
+  timeZone: 'Europe/Stockholm',
+});
+
+const yearFormatter = new Intl.DateTimeFormat('sv-SE', {
+  year: 'numeric',
+  timeZone: 'Europe/Stockholm',
+});
+
+/**
+ * "tors 3 sep." räcker inom innevarande år. Sträcker sig listan in i nästa år
+ * blir samma format tvetydigt, så då skrivs årtalet ut.
+ */
+function formatListDate(startUtc, now) {
+  const sameYear = yearFormatter.format(new Date(startUtc)) === yearFormatter.format(new Date(now));
+  const formatter = sameYear ? listDateFormatter : listDateWithYearFormatter;
+
+  return formatter.format(new Date(startUtc));
+}
 
 function formatCountdown(minutes) {
   if (minutes < 1) return 'strax';
@@ -155,7 +190,7 @@ function renderHeadline(view) {
 
   dom.headline.textContent = view.finished.length > 0
     ? 'Dagens evenemang är över.'
-    : 'Inget på gång i Johanneshov idag.';
+    : 'Inget på gång i Globenområdet idag.';
 }
 
 function renderEmptyState(view) {
@@ -174,16 +209,93 @@ function renderEmptyState(view) {
   return [empty];
 }
 
+/**
+ * Listan över en källas evenemang, som fälls ut när man klickar på den i
+ * källhälsan. Siffran där gäller allt källan levererade — inte bara idag — så
+ * datumet måste stå med, annars är listan obegriplig.
+ */
+function renderSourceDetail(sourceId) {
+  const source = state.sources.find((candidate) => candidate.id === sourceId);
+  const now = Date.now();
+  const todayKey = zonedDateKey(now);
+
+  const events = state.events
+    .filter((event) => event.sourceId === sourceId)
+    .sort((a, b) => a.startUtc - b.startUtc);
+
+  const panel = element('div', 'detail');
+  panel.append(
+    element('p', 'detail__caption', `${source.label} — ${events.length} kommande evenemang`),
+  );
+
+  // Scenkolumnen tillför bara något när källan täcker flera scener. För en arena
+  // vore den samma ord om och om igen; för Slakthusen skiljer den Hus 7 från
+  // Slaktkyrkan och Kapellet.
+  const venues = new Set(events.map((event) => event.venue));
+  const showVenue = venues.size > 1;
+
+  const rows = element('ul', `detail__rows${showVenue ? '' : ' detail__rows--no-venue'}`);
+
+  for (const event of events) {
+    const isToday = zonedDateKey(event.startUtc) === todayKey;
+    const row = element('li', `detail__row${isToday ? ' detail__row--today' : ''}`);
+
+    row.append(
+      element('span', 'detail__date', isToday ? 'idag' : formatListDate(event.startUtc, now)),
+    );
+    row.append(element('span', 'detail__time', formatTime(event.startUtc)));
+
+    const link = element('a', 'detail__name', event.title);
+    link.href = event.url ?? '#';
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    row.append(link);
+
+    if (showVenue) row.append(element('span', 'detail__venue', event.venue));
+    rows.append(row);
+  }
+
+  panel.append(rows);
+  return panel;
+}
+
 function renderSources(view) {
   const parts = [];
 
   const list = element('ul', 'sources__list');
+
   for (const source of state.sources) {
-    const item = element('li', `sources__item${source.ok ? '' : ' sources__item--down'}`);
-    item.textContent = source.ok ? `${source.label} · ${source.count} event` : `${source.label} · svarar inte`;
+    const item = element('li');
+    const expandable = source.ok && source.count > 0;
+
+    if (!expandable) {
+      const span = element('span', `sources__item${source.ok ? '' : ' sources__item--down'}`);
+      span.textContent = source.ok
+        ? `${source.label} · inga evenemang`
+        : `${source.label} · svarar inte`;
+      item.append(span);
+      list.append(item);
+      continue;
+    }
+
+    const isOpen = expandedSourceId === source.id;
+    const button = element('button', `sources__item sources__item--button${isOpen ? ' is-open' : ''}`);
+    button.type = 'button';
+    button.textContent = `${source.label} · ${source.count} event`;
+    button.setAttribute('aria-expanded', String(isOpen));
+
+    button.addEventListener('click', () => {
+      expandedSourceId = isOpen ? null : source.id;
+      render();
+    });
+
+    item.append(button);
     list.append(item);
   }
+
   parts.push(list);
+
+  if (expandedSourceId) parts.push(renderSourceDetail(expandedSourceId));
 
   const failed = state.sources.filter((source) => !source.ok);
 

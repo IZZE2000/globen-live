@@ -3,7 +3,7 @@
 const DEFAULT_TIMEOUT_MS = 15_000;
 
 const USER_AGENT =
-  'GlobenLive/1.0 (personlig översikt över evenemang i Johanneshov; kontakt via lokal körning)';
+  'GlobenLive/1.0 (personlig översikt över evenemang i Globenområdet; kontakt via lokal körning)';
 
 export async function fetchText(url, { timeoutMs = DEFAULT_TIMEOUT_MS } = {}) {
   const controller = new AbortController();

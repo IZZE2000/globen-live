@@ -20,7 +20,7 @@ import { findEvents } from '../jsonld.js';
 import { zonedDateKey } from '../timezone.js';
 
 /**
- * De fyra Stockholm Live-arenorna som ligger i Johanneshov. Södra Teatern
+ * De fyra Stockholm Live-arenorna som ligger i Globenområdet. Södra Teatern
  * (Södermalm) och Strawberry Arena (Solna) hör till samma bolag men inte till
  * kvarteret, och ingår därför inte.
  *

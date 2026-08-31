@@ -381,6 +381,125 @@ body {
   color: #ff9d97;
 }
 
+/* Klickbara källor: siffran "6 event" säger inte vilka, så den fäller ut listan. */
+.sources__item--button {
+  padding: 3px 9px 3px 8px;
+  margin: -3px -9px -3px -8px;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.sources__item--button:hover,
+.sources__item--button:focus-visible {
+  background: var(--surface-raised);
+  border-color: var(--line);
+  color: var(--text);
+  outline: none;
+}
+
+.sources__item--button.is-open {
+  background: var(--surface-raised);
+  border-color: var(--line);
+  color: var(--text);
+}
+
+/* ---------- Utfälld källista ---------- */
+
+.detail {
+  margin: 4px 0 14px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.detail__caption {
+  margin: 0;
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--line-soft);
+  color: var(--text-dim);
+  font-size: 0.76rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.detail__rows {
+  /* Slakthusen levererar närmare hundra rader — panelen får rulla, inte sidan. */
+  max-height: min(52vh, 420px);
+  margin: 0;
+  padding: 4px 0;
+  list-style: none;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.detail__row {
+  display: grid;
+  grid-template-columns: 6.6rem 3.4rem 1fr auto;
+  align-items: baseline;
+  gap: 10px;
+  padding: 6px 14px;
+  font-size: 0.8rem;
+}
+
+.detail__rows--no-venue .detail__row {
+  grid-template-columns: 6.6rem 3.4rem 1fr;
+}
+
+.detail__row + .detail__row {
+  border-top: 1px solid var(--line-soft);
+}
+
+.detail__row--today .detail__date {
+  color: var(--live);
+  font-weight: 650;
+}
+
+.detail__date {
+  color: var(--text-faint);
+  white-space: nowrap;
+}
+
+.detail__time {
+  font-family: var(--font-num);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-dim);
+}
+
+.detail__name {
+  color: var(--text);
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.detail__name:hover,
+.detail__name:focus-visible {
+  text-decoration: underline;
+}
+
+.detail__venue {
+  color: var(--text-faint);
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* På smal skärm får scenen flytta ned under namnet i stället för att klämmas. */
+@media (max-width: 560px) {
+  .detail__row {
+    grid-template-columns: 5.2rem 3.2rem 1fr;
+  }
+
+  .detail__venue {
+    grid-column: 3;
+    text-align: left;
+  }
+}
+
 .sources__note {
   margin: 0;
   max-width: 68ch;
