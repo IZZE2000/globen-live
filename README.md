@@ -98,7 +98,7 @@ src/
   jsonld.js            plockar schema.org-data ur HTML
   sources/             en fil per datakälla
 public/                gränssnittet
-test/                  49 tester, inklusive nätoberoende fixturer
+test/                  55 tester, inklusive nätoberoende fixturer
 ```
 
 `normalize.js` och `timezone.js` serveras även till webbläsaren, så statuslogiken
