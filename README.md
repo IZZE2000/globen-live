@@ -98,7 +98,7 @@ src/
   jsonld.js            plockar schema.org-data ur HTML
   sources/             en fil per datakälla
 public/                gränssnittet
-test/                  42 tester, inklusive nätoberoende fixturer
+test/                  49 tester, inklusive nätoberoende fixturer
 ```
 
 `normalize.js` och `timezone.js` serveras även till webbläsaren, så statuslogiken
@@ -113,8 +113,12 @@ npm test
 
 - **Sluttider är uppskattningar**, inte data.
 - **Slakthusområdet är ofullständigt.** Slaktkyrkan, Hus 7 och Kapellet täcks via
-  `slakthusen.se`. Restauranger, mindre klubbar och popup-event syns inte, och ett
-  tiotal inlägg har datumformat som tolken inte klarar.
+  `slakthusen.se`. Ett tiotal inlägg har datumformat som tolken inte klarar, och för
+  ungefär lika många saknar texten klockslag helt — de visas med tiden flaggad som
+  gissad.
+- **Klubben Slakthuset ingår inte.** Dess klubbkvällar publiceras aldrig i
+  `slakthusen.se`-flödet utan säljs via Billetto, som är en egen datakälla. Detsamma
+  gäller restauranger och popup-event i området.
 - **Skrapning är sprött till sin natur.** Byggs arenornas sajter om slutar
   JSON-LD-uttaget fungera — men källhälsan gör att det märks direkt i stället för
   att sidan tyst visar noll evenemang.

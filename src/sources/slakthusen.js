@@ -17,7 +17,11 @@
 
 import { fetchText as defaultFetchText } from '../http.js';
 import { stripHtml } from '../html.js';
-import { parseSwedishEventDate, parseVenueFromTitle } from '../swedishDate.js';
+import {
+  parseSwedishEventDate,
+  parseVenueFromText,
+  parseVenueFromTitle,
+} from '../swedishDate.js';
 
 const API_URL =
   'https://slakthusen.se/wp-json/wp/v2/posts?per_page=100&_fields=id,slug,link,title,excerpt,content';
@@ -56,12 +60,16 @@ export async function fetchSlakthusen({ now = Date.now(), fetchText = defaultFet
       continue;
     }
 
-    const venue = parseVenueFromTitle(title);
+    // Titeln är förstahandskällan, men långt ifrån alla inlägg har "| Scen".
+    // Står scenen i brödtexten är den lika pålitlig — och "Slakthusområdet" är
+    // sista utvägen, inte ett svar.
+    const titleVenue = parseVenueFromTitle(title);
+    const venue = titleVenue ?? parseVenueFromText(text);
 
     events.push({
       id: `${SOURCE_ID}:${post.id}`,
-      // Titeln är "Artist | Scen" — scenen visas separat, så den kapas bort här.
-      title: venue ? title.split('|')[0].trim() : title,
+      // Scenen visas separat, så den kapas bort ur titeln när den står där.
+      title: titleVenue ? title.split('|')[0].trim() : title,
       subtitle: null,
       description: null,
       venue: venue ?? 'Slakthusområdet',

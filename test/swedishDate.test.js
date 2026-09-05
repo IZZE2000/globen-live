@@ -1,7 +1,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { parseSwedishEventDate, parseVenueFromTitle } from '../src/swedishDate.js';
+import {
+  parseSwedishEventDate,
+  parseVenueFromText,
+  parseVenueFromTitle,
+} from '../src/swedishDate.js';
 import { formatTime, zonedDateKey, zonedTimeToUtc } from '../src/timezone.js';
 
 /**
@@ -149,6 +153,72 @@ test('respekterar utskrivet år framför härledning', () => {
   const result = parseSwedishEventDate('Lördag 15 augusti 2027 Insläpp 19.00', { now: NOW });
 
   assert.equal(zonedDateKey(result.startUtc), '2027-08-15');
+});
+
+/**
+ * Upptäckt i verkligheten: Mattias hörde musik från Slakthusområdet en fredagskväll
+ * och undrade varför appen inte visade den. Konserten fanns — men på fel tid och
+ * fel scen. Utdraget nedan är MALA:s ordagranna text från slakthusen.se.
+ */
+const MALA =
+  'Artist: MalaVenue: SlaktkyrkanDatum: 4 septemberBiljetter: 295 SEKTider: kl 21-03Åldersgräns: 18+ år Mala är född och uppvuxen i South Norwood';
+
+test('läser starttiden ur ett tidsspann — "Tider: kl 21-03"', () => {
+  const result = parseSwedishEventDate(MALA, { now: NOW });
+
+  assert.equal(zonedDateKey(result.startUtc), '2026-09-04');
+  assert.equal(formatTime(result.startUtc), '21:00', 'inte 19:00-gissningen');
+  assert.equal(result.timeIsGuess, false);
+});
+
+test('läser scenen ur texten när titeln saknar den', () => {
+  assert.equal(parseVenueFromText(MALA), 'Slaktkyrkan');
+  assert.equal(parseVenueFromText('Venue: Hus 7Åldersgräns: 13+'), 'Hus 7');
+  assert.equal(parseVenueFromText('Lokal: Hus 7 Insläpp 19.00'), 'Hus 7');
+});
+
+test('hittar ingen scen när etiketten pekar på något okänt', () => {
+  assert.equal(parseVenueFromText('Venue: Debaser Strand'), null);
+  assert.equal(parseVenueFromText('Ingen scen alls nämnd här'), null);
+});
+
+test('klarar engelska dörrfraser', () => {
+  const hospitality = parseSwedishEventDate('HOSPITALITY MAY 8TH SLAKTKYRKAN DOORS AT 21.00', {
+    now: NOW,
+  });
+  assert.equal(formatTime(hospitality.startUtc), '21:00');
+
+  const amoral = parseSwedishEventDate('Fredag 20 november Doors open at 22:00', { now: NOW });
+  assert.equal(formatTime(amoral.startUtc), '22:00');
+});
+
+test('klarar "Dörrarna öppnas kl. 18:30"', () => {
+  const result = parseSwedishEventDate('Program fredag 06 mars. Dörrarna öppnas kl. 18:30', {
+    now: NOW,
+  });
+
+  assert.equal(formatTime(result.startUtc), '18:30');
+});
+
+test('tar tiden som står direkt efter datumet', () => {
+  const palmer = parseSwedishEventDate('AMANDA PALMER Slaktkyrkan 6 augusti 19:00', { now: NOW });
+  assert.equal(formatTime(palmer.startUtc), '19:00');
+
+  const olya = parseSwedishEventDate('OLYA POLYAKOVA Slaktkyrkan Sunday 08 November 18:00', {
+    now: NOW,
+  });
+  assert.equal(formatTime(olya.startUtc), '18:00');
+});
+
+/**
+ * Skyddet mot att plocka vilket tal som helst efter datumet. Ett biljettpris är
+ * inte ett klockslag, och hellre en ärlig gissning än en påhittad tid.
+ */
+test('förväxlar inte ett tal efter datumet med en tid', () => {
+  const result = parseSwedishEventDate('Datum: 4 septemberBiljetter: 295 SEK', { now: NOW });
+
+  assert.equal(result.timeIsGuess, true, 'ska erkänna att tiden saknas');
+  assert.equal(formatTime(result.startUtc), '19:00');
 });
 
 test('läser ut scenen ur titeln', () => {
