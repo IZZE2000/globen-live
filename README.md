@@ -60,17 +60,36 @@ ur listningens ISO-sträng blir tiden två timmar fel. All tid lagras därför s
 absoluta instanter och formateras först vid visning, i `Europe/Stockholm`.
 `test/stockholmlive.test.js` låser fast just det fallet mot en fixtur.
 
-**Sluttider finns nästan aldrig.** Bara Resident Advisor publicerar dem. För
-allt annat bygger "pågår nu" på en uppskattad längd per typ av evenemang, och
-skillnaden syns i gränssnittet: "håller på till 03:00" när det är data,
-"beräknas hålla på till ~21:00" när det är en gissning. En gissning ska aldrig
-se ut som ett faktum.
+**Sluttider finns bara ibland.** Resident Advisor publicerar dem alltid, och
+Slakthusens eventsidor för de evenemang vi hämtar sidan för. För allt annat bygger
+"pågår nu" på en uppskattad längd per typ av evenemang, och skillnaden syns i
+gränssnittet: "håller på till 03:00" när det är data, "beräknas hålla på till
+~21:00" när det är en gissning. En gissning ska aldrig se ut som ett faktum.
 
 **Slakthusens datum står i prosan.** REST-fältet `date` är publiceringsdatum. Det
 riktiga datumet finns bara i texten — "Torsdag 26 november … Insläpp 19.00 … Live
 från ca 20.00" — och året anges nästan aldrig, så det härleds till närmast
 kommande förekomst. Arrangörerna skriver dessutom omväxlande svenska och engelska;
 tolken hanterar båda, plus förkortade månader och ordningstal.
+
+Deras **eventsidor** har däremot samma uppgifter i märkta element, med årtal och
+sluttid:
+
+```html
+<div class="datum-b"><p>lördag sep 05, 2026</p></div>
+<div class="tid-b"><p>14.00 - 00.00</p></div>
+Slaktkyrkan,  Styckmästargatan 10
+```
+
+Fälten renderas av sidmallen och följer inte med i REST-svaret, så de kostar ett
+anrop per evenemang. Därför hämtas de bara där de gör skillnad: för **dagens**
+evenemang, och för de inlägg vars datum inte gick att tolka ur prosan — de syns
+annars inte alls. Det brukar bli ett dussin anrop, mot nittio om allt hämtades.
+
+Källorna kombineras, inte ersätts. Sidan äger datumet och sluttiden. Men dess enda
+tidsfält är inte alltid speltiden: Countryhus vol. 4 har `tid-b` 20:00 medan prosan
+skiljer på "Insläpp: 20.00" och "Live: ca 21.00". Har prosan hittat en riktig
+speltid är den mer precis och behålls — fast flyttad till sidans datum.
 
 ## Vad som händer när något går sönder
 
@@ -142,7 +161,7 @@ src/
   jsonld.js            plockar schema.org-data ur HTML
   sources/             en fil per datakälla
 public/                gränssnittet
-test/                  83 tester, inklusive nätoberoende fixturer
+test/                  94 tester, inklusive nätoberoende fixturer
 ```
 
 `normalize.js` och `timezone.js` serveras även till webbläsaren, så statuslogiken
@@ -155,12 +174,12 @@ npm test
 
 ## Begränsningar
 
-- **Sluttider är uppskattningar för allt utom klubbkvällarna.** Bara Resident
-  Advisor publicerar dem; gränssnittet skiljer på de två fallen.
+- **Sluttider finns bara ibland.** Resident Advisor publicerar dem alltid, och
+  Slakthusens eventsidor för de evenemang vi hämtar sidan för. Övrigt uppskattas,
+  och gränssnittet skiljer på fallen med ett ~.
 - **Slakthusområdet är ofullständigt.** Slaktkyrkan, Hus 7 och Kapellet täcks via
-  `slakthusen.se`. Ett tiotal inlägg har datumformat som tolken inte klarar, och för
-  ungefär lika många saknar texten klockslag helt — de visas med tiden flaggad som
-  gissad.
+  `slakthusen.se`. Ett tiotal inlägg saknar klockslag i prosan och visas med tiden
+  flaggad som gissad — utom de vi hämtar eventsidan för, där tiden är exakt.
 - **Klubbkvällarna täcks bara delvis.** Resident Advisor når Slakthuset,
   Slaktkyrkan och Fållan, men bara det som är elektronisk musik — RA:s nisch. En
   jämförelse mot Billetto visade att källorna överlappar dåligt: av fyra

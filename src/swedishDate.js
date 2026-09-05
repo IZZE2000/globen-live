@@ -223,8 +223,15 @@ export function parseVenueFromText(text) {
   const labelled = String(text ?? '').match(VENUE_LABEL);
   if (!labelled) return null;
 
+  return matchKnownVenue(labelled[1]);
+}
+
+/** Första kända scennamnet i texten, eller null. Vi gissar aldrig fram en scen. */
+export function matchKnownVenue(text) {
+  const haystack = String(text ?? '');
+
   for (const [pattern, name] of KNOWN_VENUES) {
-    if (pattern.test(labelled[1])) return name;
+    if (pattern.test(haystack)) return name;
   }
 
   return null;
