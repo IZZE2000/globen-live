@@ -49,6 +49,28 @@ export const ARENAS = [
   },
 ];
 
+/**
+ * Spelplatsen ur titelns parentes.
+ *
+ * Hovets sida listar alla Djurgårdens hemmamatcher, även de som spelas i Globen, och
+ * JSON-LD:ns `location` säger "Hovet" för dem allihop. Det fältet går alltså inte att
+ * lita på. Den riktiga arenan står i titeln — "DIF - IF Björklöven (Avicii Arena)" —
+ * och utan att läsa den visades samma match på två arenor samtidigt.
+ *
+ * Bara kända arenanamn räknas. Parenteser används också för "(Allsvenskan)" och
+ * "(Försäsongsmatch)", som inte är spelplatser.
+ */
+function venueFromTitle(title) {
+  const parenthetical = String(title ?? '').match(/\s*\(([^)]+)\)\s*$/);
+  if (!parenthetical) return null;
+
+  const candidate = parenthetical[1].trim().toLowerCase();
+  const arena = ARENAS.find((known) => known.name.toLowerCase() === candidate);
+  if (!arena) return null;
+
+  return { venue: arena.name, title: title.slice(0, parenthetical.index).trim() };
+}
+
 /** Kategorin ligger i URL:ens sökväg: /evenemang/<kategori>/<slug>/ */
 function categoryFromUrl(url) {
   const match = String(url ?? '').match(/\/evenemang\/([a-z0-9-]+)\//i);
@@ -91,13 +113,18 @@ async function enrich(event, fetchText) {
     const showing = matchShowing(findEvents(html), event.startUtc);
     if (!showing) return event;
 
-    const title = showing.name ? decodeEntities(showing.name) : event.title;
+    const decoded = showing.name ? decodeEntities(showing.name) : event.title;
+
+    // Spelas matchen på en annan arena än sajten vi hämtade från står det i titeln.
+    const elsewhere = venueFromTitle(decoded);
+    const title = elsewhere?.title ?? decoded;
 
     return {
       ...event,
       // Det generiska namnet blir underrubrik när vi har ett mer specifikt.
       title,
       subtitle: title !== event.title ? event.title : null,
+      venue: elsewhere?.venue ?? event.venue,
       description: showing.description ? decodeEntities(showing.description) : null,
       imageUrl: firstImage(showing) ?? event.imageUrl,
     };

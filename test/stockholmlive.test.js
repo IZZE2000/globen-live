@@ -99,6 +99,89 @@ test('avkodar HTML-entiteter i namn från källan', async () => {
   assert.equal(events[0].title, 'CA7RIEL & Paco Amoroso');
 });
 
+/**
+ * Hovets sida listar alla Djurgårdens hemmamatcher, även de som spelas i Globen.
+ * JSON-LD:ns `location` säger "Hovet" för dem allihop och är alltså opålitlig —
+ * den riktiga spelplatsen står i titelns parentes. Utan det här visades samma
+ * match på två arenor samtidigt.
+ */
+function listningMed(name, startDate) {
+  return `<script type="application/ld+json">${JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        item: {
+          '@type': 'Event',
+          name: 'Djurgården Hockey',
+          url: 'https://hovetarena.se/evenemang/sport/djurgarden-hockey/',
+          startDate,
+        },
+      },
+    ],
+  })}</script>`;
+}
+
+function detaljMed(name, startDate) {
+  return `<script type="application/ld+json">${JSON.stringify({
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'SportsEvent',
+        name,
+        startDate,
+        location: { '@type': 'Place', name: 'Hovet' },
+      },
+    ],
+  })}</script>`;
+}
+
+const HOVET = { id: 'hovet', name: 'Hovet', listingUrl: 'https://hovetarena.se/evenemang/' };
+
+test('titelns parentes bestämmer spelplatsen, inte sajten vi hämtade från', async () => {
+  const start = '2026-08-31T18:00:00+02:00';
+  const fetchText = async (url) =>
+    url === HOVET.listingUrl
+      ? listningMed('Djurgården Hockey', start)
+      : detaljMed('DIF - IF Björklöven (Avicii Arena)', start);
+
+  const [match] = await fetchArena(HOVET, { now: MATCHDAY, fetchText });
+
+  assert.equal(match.venue, 'Avicii Arena', 'location-fältet ljuger, parentesen gör inte det');
+  assert.equal(match.title, 'DIF - IF Björklöven', 'spelplatsen visas separat, inte i titeln');
+});
+
+test('en match som faktiskt spelas på Hovet stannar på Hovet', async () => {
+  const start = '2026-08-31T18:00:00+02:00';
+  const fetchText = async (url) =>
+    url === HOVET.listingUrl
+      ? listningMed('Djurgården Hockey', start)
+      : detaljMed('DIF – Växjö Lakers', start);
+
+  const [match] = await fetchArena(HOVET, { now: MATCHDAY, fetchText });
+
+  assert.equal(match.venue, 'Hovet');
+  assert.equal(match.title, 'DIF – Växjö Lakers');
+});
+
+/**
+ * Parenteser används också för helt andra saker. Bara kända arenanamn får tolkas
+ * som spelplats — annars blir "(Allsvenskan)" en arena.
+ */
+test('parenteser som inte är arenanamn lämnas i fred', async () => {
+  const start = '2026-08-31T18:00:00+02:00';
+  for (const titel of ['DIF – Mjällby AIF (Allsvenskan)', 'DIF – Brynäs IF (Försäsongsmatch)']) {
+    const fetchText = async (url) =>
+      url === HOVET.listingUrl ? listningMed('x', start) : detaljMed(titel, start);
+
+    const [match] = await fetchArena(HOVET, { now: MATCHDAY, fetchText });
+
+    assert.equal(match.venue, 'Hovet', titel);
+    assert.equal(match.title, titel, 'parentesen hör till matchen och ska stå kvar');
+  }
+});
+
 test('en listningssida utan JSON-LD larmar i stället för att tyst ge noll event', async () => {
   const empty = async () => '<html><body>Ombyggd sajt utan strukturerad data</body></html>';
 

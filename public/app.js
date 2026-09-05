@@ -331,7 +331,8 @@ function renderSources(view) {
     element(
       'p',
       'sources__note',
-      `Sluttider är uppskattade utifrån typ av evenemang — ingen källa publicerar dem.${age}${stale}`,
+      'Klubbkvällarna har sluttider från källan; för övrigt uppskattas de utifrån typ av ' +
+        `evenemang och skrivs då med ett ~.${age}${stale}`,
     ),
   );
 
