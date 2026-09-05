@@ -106,6 +106,29 @@ kostnaden. `cache.js` gör därför tre saker:
 Resultatet är att bara serverstarten någonsin betalar hämtningen. Besökaren får
 svar på millisekunder.
 
+## Att ligga under en katalog
+
+Alla sökvägar i gränssnittet är relativa, aldrig rotabsoluta. Sidan fungerar
+därför både på `localhost:3000/` och under en katalog på en delad domän, som
+`example.se/globen/`, utan konfiguration.
+
+Det är inte kosmetik. Med rotabsoluta sökvägar hade sidan begärt
+`/public/app.js`, `/src/normalize.js` och `/api/events` från **domänroten** — och
+fungerat bara om värdservern vidarebefordrade de tre sökvägarna till oss. Appen
+hade då gjort anspråk på tre sökvägar mitt på en sajt den delar domän med, och
+krockat den dagen värdsajten själv vill använda `/api/`.
+
+`test/paths.test.js` vaktar mot att ett ledande snedstreck smyger tillbaka.
+
+Ett nginx-block för att lägga appen under en katalog ser ut så här — det
+avslutande snedstrecket i `proxy_pass` är det som klipper bort prefixet:
+
+```nginx
+location /globen/ {
+    proxy_pass http://127.0.0.1:8080/;
+}
+```
+
 ## Struktur
 
 ```
@@ -119,7 +142,7 @@ src/
   jsonld.js            plockar schema.org-data ur HTML
   sources/             en fil per datakälla
 public/                gränssnittet
-test/                  80 tester, inklusive nätoberoende fixturer
+test/                  83 tester, inklusive nätoberoende fixturer
 ```
 
 `normalize.js` och `timezone.js` serveras även till webbläsaren, så statuslogiken

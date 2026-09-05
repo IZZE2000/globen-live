@@ -8,8 +8,10 @@
  * medan ny data hämtas var tionde minut.
  */
 
-import { STATUS, buildTodayView } from '/src/normalize.js';
-import { formatTime, zonedDateKey } from '/src/timezone.js';
+// Relativt till den här filens URL, aldrig rotabsolut: sidan kan ligga under en
+// katalog på en delad domän, och då finns ingen /src/ på roten att peka mot.
+import { STATUS, buildTodayView } from '../src/normalize.js';
+import { formatTime, zonedDateKey } from '../src/timezone.js';
 
 const RESTATUS_INTERVAL_MS = 30_000;
 const REFETCH_INTERVAL_MS = 10 * 60_000;
@@ -380,7 +382,9 @@ function render() {
 
 async function load() {
   try {
-    const response = await fetch('/api/events');
+    // Relativt till sidans adress. På localhost blir det /api/events, under
+    // /globen/ blir det /globen/api/events — utan att appen behöver veta vilket.
+    const response = await fetch('api/events');
     const body = await response.json();
 
     if (!response.ok) throw new Error(body.detail ?? body.error ?? response.statusText);
