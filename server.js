@@ -104,7 +104,13 @@ const server = createServer(async (request, response) => {
   await serveStatic(pathname, response);
 });
 
-server.listen(PORT, () => {
+server.listen(PORT, async () => {
   console.log(`Globen Live körs på http://localhost:${PORT}`);
-  console.log('Hämtar Avicii Arena, 3Arena och Slakthusområdet. Avsluta med Ctrl+C.');
+  console.log('Avsluta med Ctrl+C.');
+
+  // Fyll cachen innan någon hinner fråga. Servern tar emot anrop redan nu — den
+  // som råkar vara först delar på samma hämtning i stället för att starta en till.
+  const start = Date.now();
+  await cache.warm();
+  console.log(`Evenemang hämtade på ${((Date.now() - start) / 1000).toFixed(1)} s.`);
 });

@@ -88,6 +88,24 @@ täcker flera scener, som Slakthusen.
 Misslyckas en uppdatering serveras senast lyckade data vidare, märkt med hur
 gammal den är.
 
+## Att ingen ska behöva vänta
+
+Att hämta alla källor tar sekunder — uppmätt till 17 från servern en kall gång.
+Med en vanlig cache betalar första besökaren efter varje utgång hela den
+kostnaden. `cache.js` gör därför tre saker:
+
+- **Uppvärmning vid start.** Servern hämtar allt när den startar, innan någon
+  hunnit fråga. Loggen skriver ut hur lång tid det tog.
+- **Utgången data serveras direkt** medan uppdateringen sker i bakgrunden.
+  Evenemangslistor ändras inte minut för minut, så några minuters ålder är ett
+  bättre svar än flera sekunders väntan.
+- **Riktigt gammal data väntar däremot in en hämtning.** Har ingen besökt sidan
+  på över en timme kan programmet ha hunnit ändras, och då är sekunderna värda
+  det.
+
+Resultatet är att bara serverstarten någonsin betalar hämtningen. Besökaren får
+svar på millisekunder.
+
 ## Struktur
 
 ```
@@ -97,11 +115,11 @@ src/
   swedishDate.js       tolkar "Torsdag 26 november … Live från ca 20.00"
   normalize.js         eventmodell, statusberäkning, längduppskattning
   aggregate.js         slår ihop källorna, slår ihop dubbletter, rapporterar hälsa
-  cache.js             TTL-cache som faller tillbaka på gammal data
+  cache.js             cache som värms vid start och aldrig får någon att vänta
   jsonld.js            plockar schema.org-data ur HTML
   sources/             en fil per datakälla
 public/                gränssnittet
-test/                  72 tester, inklusive nätoberoende fixturer
+test/                  80 tester, inklusive nätoberoende fixturer
 ```
 
 `normalize.js` och `timezone.js` serveras även till webbläsaren, så statuslogiken
