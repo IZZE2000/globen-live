@@ -28,6 +28,7 @@ och inte en fil man dubbelklickar på.
 | Hovet | `hovetarena.se` | JSON-LD (schema.org) i sidans HTML |
 | Annexet | `annexet.se` | JSON-LD (schema.org) i sidans HTML |
 | Slakthusområdet | `slakthusen.se` | WordPress REST + tolkning av svensk brödtext |
+| Klubbscenerna | `ra.co` (Resident Advisor) | GraphQL — Slakthuset, Slaktkyrkan, Fållan |
 
 De fyra arenorna drivs alla av Stockholm Live på samma plattform, så de delar en
 enda hämtare — att lägga till en till är fyra rader i `ARENAS`. Två fallgropar:
@@ -59,9 +60,11 @@ ur listningens ISO-sträng blir tiden två timmar fel. All tid lagras därför s
 absoluta instanter och formateras först vid visning, i `Europe/Stockholm`.
 `test/stockholmlive.test.js` låser fast just det fallet mot en fixtur.
 
-**Sluttider finns inte.** Ingen källa publicerar dem. "Pågår nu" bygger på en
-uppskattad längd per typ av evenemang, och gränssnittet skriver ut det som
-"beräknas hålla på till ~21:00" i stället för att låtsas veta.
+**Sluttider finns nästan aldrig.** Bara Resident Advisor publicerar dem. För
+allt annat bygger "pågår nu" på en uppskattad längd per typ av evenemang, och
+skillnaden syns i gränssnittet: "håller på till 03:00" när det är data,
+"beräknas hålla på till ~21:00" när det är en gissning. En gissning ska aldrig
+se ut som ett faktum.
 
 **Slakthusens datum står i prosan.** REST-fältet `date` är publiceringsdatum. Det
 riktiga datumet finns bara i texten — "Torsdag 26 november … Insläpp 19.00 … Live
@@ -93,12 +96,12 @@ src/
   timezone.js          Europe/Stockholm via Intl — enda stället tid formateras
   swedishDate.js       tolkar "Torsdag 26 november … Live från ca 20.00"
   normalize.js         eventmodell, statusberäkning, längduppskattning
-  aggregate.js         slår ihop källorna, rapporterar hälsa per källa
+  aggregate.js         slår ihop källorna, slår ihop dubbletter, rapporterar hälsa
   cache.js             TTL-cache som faller tillbaka på gammal data
   jsonld.js            plockar schema.org-data ur HTML
   sources/             en fil per datakälla
 public/                gränssnittet
-test/                  55 tester, inklusive nätoberoende fixturer
+test/                  69 tester, inklusive nätoberoende fixturer
 ```
 
 `normalize.js` och `timezone.js` serveras även till webbläsaren, så statuslogiken
@@ -111,15 +114,26 @@ npm test
 
 ## Begränsningar
 
-- **Sluttider är uppskattningar**, inte data.
+- **Sluttider är uppskattningar för allt utom klubbkvällarna.** Bara Resident
+  Advisor publicerar dem; gränssnittet skiljer på de två fallen.
 - **Slakthusområdet är ofullständigt.** Slaktkyrkan, Hus 7 och Kapellet täcks via
   `slakthusen.se`. Ett tiotal inlägg har datumformat som tolken inte klarar, och för
   ungefär lika många saknar texten klockslag helt — de visas med tiden flaggad som
   gissad.
-- **Klubben Slakthuset ingår inte.** Dess klubbkvällar publiceras aldrig i
-  `slakthusen.se`-flödet utan säljs via Billetto, som är en egen datakälla. Detsamma
-  gäller restauranger och popup-event i området.
+- **Klubbkvällarna täcks bara delvis.** Resident Advisor når Slakthuset,
+  Slaktkyrkan och Fållan, men bara det som är elektronisk musik — RA:s nisch. En
+  jämförelse mot Billetto visade att källorna överlappar dåligt: av fyra
+  Slakthuset-kvällar fanns bara en på båda. Restauranger och popup-event syns inte
+  alls.
+- **Billetto ingår inte, trots bättre data per event.** Deras eventsidor har den
+  rikaste JSON-LD:n av alla källor, men arrangörslistan byggs av JavaScript —
+  serversvaret innehåller noll evenemang, även hämtat inifrån en webbläsare med
+  riktiga cookies. Att nå den skulle kräva en huvudlös webbläsare på servern, vilket
+  skulle avsluta noll-beroenden-designen för en enda scen.
 - **Skrapning är sprött till sin natur.** Byggs arenornas sajter om slutar
   JSON-LD-uttaget fungera — men källhälsan gör att det märks direkt i stället för
   att sidan tyst visar noll evenemang.
-- `fallan.nu` är byggd i Webflow utan strukturerad data och ingår inte.
+- `fallan.nu` är byggd i Webflow utan strukturerad data; Fållan täcks i stället
+  via Resident Advisor.
+- **RA:s API är odokumenterat.** Det är deras egen frontend-endpoint, utan löften
+  om stabilitet. Källhälsan gör att ett schemabyte märks direkt.

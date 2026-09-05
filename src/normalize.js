@@ -60,12 +60,19 @@ export function estimateDurationMinutes({ category, title } = {}) {
  * går att testa deterministiskt.
  */
 export function decorate(event, now) {
-  const durationMinutes = estimateDurationMinutes(event);
-  const estimatedEndUtc = event.startUtc + durationMinutes * MINUTE;
+  // Resident Advisor publicerar riktiga sluttider. Alla andra källor gör det inte,
+  // så för dem uppskattas längden — och gränssnittet får veta vilket som gäller.
+  const hasRealEnd = typeof event.endUtc === 'number' && event.endUtc > event.startUtc;
+
+  const durationMinutes = hasRealEnd
+    ? Math.round((event.endUtc - event.startUtc) / MINUTE)
+    : estimateDurationMinutes(event);
+
+  const endUtc = hasRealEnd ? event.endUtc : event.startUtc + durationMinutes * MINUTE;
   const msUntilStart = event.startUtc - now;
 
   let status;
-  if (now >= estimatedEndUtc) {
+  if (now >= endUtc) {
     status = STATUS.DONE;
   } else if (msUntilStart <= 0) {
     status = STATUS.NOW;
@@ -78,8 +85,8 @@ export function decorate(event, now) {
   return {
     ...event,
     durationMinutes,
-    estimatedEndUtc,
-    durationIsEstimated: true,
+    endUtc,
+    durationIsEstimated: !hasRealEnd,
     status,
     minutesUntilStart: Math.round(msUntilStart / MINUTE),
   };

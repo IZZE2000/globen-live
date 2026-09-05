@@ -78,6 +78,42 @@ test('gränsfall: exakt vid beräknad sluttid är eventet slut', () => {
   assert.equal(decorate(event({ startUtc: NOW - 3 * HOUR }), NOW).status, STATUS.DONE);
 });
 
+/**
+ * Resident Advisor publicerar riktiga sluttider. För de eventen ska "pågår nu" bygga
+ * på data i stället för en gissning — och gränssnittet ska kunna säga vilket som är
+ * vilket, i stället för att hedga likadant för allt.
+ */
+test('använder källans sluttid när den finns', () => {
+  const slutar = NOW + 6 * HOUR;
+  const klubbkvall = decorate(event({ category: 'klubb', endUtc: slutar }), NOW);
+
+  assert.equal(klubbkvall.endUtc, slutar);
+  assert.equal(klubbkvall.durationIsEstimated, false);
+});
+
+test('gissar bara när sluttid saknas', () => {
+  const konsert = decorate(event({ category: 'konsert' }), NOW);
+
+  assert.equal(konsert.endUtc, NOW + 3 * HOUR);
+  assert.equal(konsert.durationIsEstimated, true);
+});
+
+test('en sluttid före starten är skräp och ignoreras', () => {
+  const trasig = decorate(event({ category: 'konsert', endUtc: NOW - HOUR }), NOW);
+
+  assert.equal(trasig.endUtc, NOW + 3 * HOUR, 'faller tillbaka på uppskattningen');
+  assert.equal(trasig.durationIsEstimated, true);
+});
+
+test('status följer den riktiga sluttiden, inte kategorigissningen', () => {
+  // En klubbkväll 21–03 pågår fortfarande klockan 02, långt efter att
+  // femtimmarsgissningen hade räknat den som slut.
+  const start = NOW - 5.5 * HOUR;
+  const kvall = decorate(event({ category: 'konsert', startUtc: start, endUtc: NOW + HOUR }), NOW);
+
+  assert.equal(kvall.status, STATUS.NOW);
+});
+
 test('buildTodayView delar upp dagen och räknar det som pågår', () => {
   const view = buildTodayView(
     [

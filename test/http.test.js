@@ -1,7 +1,23 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
+import { readFileSync } from 'node:fs';
+
 import { describeFetchError, hostOf } from '../src/http.js';
+
+/**
+ * HTTP-headers får bara innehålla ASCII. Den ursprungliga User-Agenten hade svensk
+ * text i sig, och ra.co avvisade då varje anrop — ett fel som såg ut som
+ * botfiltrering men bara var en ogiltig header. Övriga källor råkade tolerera den,
+ * vilket gjorde felet svårt att se.
+ */
+test('User-Agent innehåller bara ASCII', () => {
+  const källa = readFileSync(new URL('../src/http.js', import.meta.url), 'utf8');
+  const rad = källa.match(/const USER_AGENT =\s*\n?\s*'([^']*)'/);
+
+  assert.ok(rad, 'User-Agent ska gå att hitta i källan');
+  assert.match(rad[1], /^[\x20-\x7E]+$/, `icke-ASCII i User-Agent: ${rad[1]}`);
+});
 
 const URL_SLAKTHUSEN = 'https://slakthusen.se/wp-json/wp/v2/posts?per_page=100';
 

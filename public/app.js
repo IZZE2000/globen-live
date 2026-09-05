@@ -19,7 +19,9 @@ const ACCENTS = {
   '3arena': 'var(--arena3)',
   hovet: 'var(--hovet)',
   annexet: 'var(--annexet)',
+  // Accenten betyder plats, inte källa — och RA:s scener ligger i Slakthusområdet.
   slakthusen: 'var(--slakthuset)',
+  'resident-advisor': 'var(--slakthuset)',
 };
 
 const dom = {
@@ -140,9 +142,18 @@ function renderCard(event) {
   const foot = element('div', 'card__foot');
   foot.append(element('span', 'venue', event.venue));
 
-  // Sluttiden är en uppskattning — inte data från någon källa. Det ska synas.
+  // Resident Advisor publicerar riktiga sluttider; övriga källor gör det inte.
+  // Skillnaden ska synas — en gissning får aldrig se ut som ett faktum.
   if (event.status === STATUS.NOW) {
-    foot.append(element('span', 'meta', `beräknas hålla på till ~${formatTime(event.estimatedEndUtc)}`));
+    foot.append(
+      element(
+        'span',
+        'meta',
+        event.durationIsEstimated
+          ? `beräknas hålla på till ~${formatTime(event.endUtc)}`
+          : `håller på till ${formatTime(event.endUtc)}`,
+      ),
+    );
   } else if (event.timeIsDoors) {
     foot.append(element('span', 'meta', 'insläppstid'));
   } else if (event.timeIsGuess) {
