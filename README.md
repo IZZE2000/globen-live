@@ -107,6 +107,25 @@ täcker flera scener, som Slakthusen.
 Misslyckas en uppdatering serveras senast lyckade data vidare, märkt med hur
 gammal den är.
 
+## Utseendet
+
+Hämtat ur kvarterets arkitektur snarare än ur en mall:
+
+- **Globen** — sfären, varmt upplyst mot mörk himmel. Sidans enda runda form, och
+  det som gör att man känner igen platsen direkt. Ritad som inline-SVG med
+  fasadens latitud- och longitudsömmar.
+- **Slakthuset** — sågtandstaken på slakthushallarna återkommer som sektionslinjer,
+  och scennamnen är satta som skyltplåtar med kvadratiska hörn. Området är fullt av
+  målad skyltning; "Hus 7" är ett kvarlevande exempel.
+- **Arenorna** — avgångstavlan. Tiden är sidans hjälte, satt smal och stor i Barlow
+  Condensed så den går att läsa tvärs över ett rum.
+
+Bakgrunden är kall nattblå med en varm glöd nedifrån vänster — kvarterets ljus mot
+himlen — så att den varma sfären har något att lysa mot.
+
+Typsnitten laddas från Google Fonts med systemtypsnitt som reserv; svarar de inte
+renderas sidan ändå.
+
 ## Att ingen ska behöva vänta
 
 Att hämta alla källor tar sekunder — uppmätt till 17 från servern en kall gång.

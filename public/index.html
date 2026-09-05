@@ -11,6 +11,17 @@
       på värdsajten. Relativt fungerar både på localhost:3000/ och under en katalog.
     -->
     <link rel="stylesheet" href="public/style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!--
+      Barlow och Barlow Condensed: industriell grotesk med skyltkaraktär, samma
+      familj så sidan håller ihop. Faller tillbaka på systemtypsnitt om Google
+      inte svarar — sidan ska fungera även då.
+    -->
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&display=swap"
+    />
     <link
       rel="icon"
       href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='12' fill='%23f5a524'/></svg>"
@@ -20,11 +31,34 @@
     <div class="page">
       <header class="masthead">
         <div class="masthead__identity">
-          <span class="globe" aria-hidden="true"></span>
-          <div>
+          <!--
+            Globen: världens största sfäriska byggnad, varmt upplyst mot mörk
+            himmel. Panelsömmarna är de latitud- och longitudlinjer fasaden har.
+          -->
+          <span class="globe" aria-hidden="true">
+            <svg viewBox="0 0 100 100" role="presentation" focusable="false">
+              <defs>
+                <radialGradient id="sfar" cx="36%" cy="28%" r="76%">
+                  <stop offset="0%" stop-color="#FFEFC4" />
+                  <stop offset="30%" stop-color="#FFC759" />
+                  <stop offset="62%" stop-color="#F0990F" />
+                  <stop offset="86%" stop-color="#9E560A" />
+                  <stop offset="100%" stop-color="#4A2A06" />
+                </radialGradient>
+              </defs>
+              <circle cx="50" cy="50" r="45" fill="url(#sfar)" />
+              <g fill="none" stroke="#3D2004" stroke-width="0.7" opacity="0.32">
+                <ellipse cx="50" cy="50" rx="45" ry="15" />
+                <ellipse cx="50" cy="50" rx="45" ry="30" />
+                <ellipse cx="50" cy="50" rx="15" ry="45" />
+                <ellipse cx="50" cy="50" rx="30" ry="45" />
+              </g>
+            </svg>
+          </span>
+          <div class="masthead__words">
             <h1>Globenområdet</h1>
             <p class="masthead__places">
-              Avicii Arena · 3Arena · Hovet · Annexet · Slakthusområdet
+              Avicii&nbsp;Arena · 3Arena · Hovet · Annexet · Slakthusområdet
             </p>
           </div>
         </div>

@@ -1,23 +1,34 @@
 /*
+ * Globen Live — utseende.
+ *
+ * Hämtat ur kvarterets arkitektur snarare än ur en mall:
+ *
+ *   Globen        sfären, varmt upplyst mot mörk himmel. Sidans enda runda form,
+ *                 och det som gör att man känner igen platsen direkt.
+ *   Slakthuset    sågtandstaken på slakthushallarna återkommer som sektionslinjer,
+ *                 och scennamnen är satta som skyltplåtar — området är fullt av
+ *                 målad skyltning, "Hus 7" är ett kvarlevande exempel.
+ *   Arenorna      avgångstavlan: tiden är sidans hjälte, satt smal och stor så den
+ *                 går att läsa tvärs över ett rum.
+ *
  * Mörkt tema genomgående — sidan är tänkt att kunna stå uppe på en extraskärm
- * hela dagen. Typografin skalar med clamp() så samma layout fungerar på en telefon
- * i handen och på en skärm man läser av tvärs över rummet.
+ * hela kvällen, vilket också är när kvarteret lever.
  */
 
 :root {
-  --bg: #0a0c10;
-  --bg-glow: #121722;
-  --surface: #141922;
-  --surface-raised: #1b2230;
-  --line: #232b39;
-  --line-soft: #1a2130;
+  /* Nattblå botten, kall — så den varma sfären får lysa mot den. */
+  --bg: #080a0f;
+  --surface: #12161f;
+  --surface-raised: #19202c;
+  --line: #232c3a;
+  --line-soft: #1a212c;
 
-  --text: #e9eef6;
-  --text-dim: #9aa6b8;
-  --text-faint: #6b7789;
+  --text: #edf1f7;
+  --text-dim: #9aa7ba;
+  --text-faint: #6b788c;
 
-  --live: #ff5f56;
-  --live-glow: rgba(255, 95, 86, 0.16);
+  --live: #ff5f4e;
+  --live-glow: rgba(255, 95, 78, 0.14);
 
   /* En accent per plats, så man ser var något händer innan man läst namnet. */
   --avicii: #f5a524;
@@ -26,12 +37,11 @@
   --annexet: #5ed49a;
   --slakthuset: #ef5d94;
 
-  --radius: 16px;
-  --radius-sm: 9px;
+  --radius: 4px;
+  --radius-lg: 6px;
 
-  --font: ui-sans-serif, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
-    Arial, "Noto Sans", sans-serif;
-  --font-num: ui-monospace, "SF Mono", "Cascadia Mono", "Segoe UI Mono", Menlo, monospace;
+  --f-display: "Barlow Condensed", "Oswald", "Arial Narrow", system-ui, sans-serif;
+  --f-body: "Barlow", ui-sans-serif, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 
 *,
@@ -44,20 +54,22 @@ body {
   margin: 0;
   min-height: 100vh;
   background:
-    radial-gradient(1100px 600px at 15% -10%, var(--bg-glow), transparent 60%),
-    radial-gradient(900px 500px at 100% 0%, #101a20, transparent 55%),
+    /* Kvarterets ljus nedifrån vänster, kall himmel uppåt höger. */
+    radial-gradient(900px 520px at 8% 104%, rgba(190, 108, 30, 0.13), transparent 62%),
+    radial-gradient(1000px 620px at 92% -8%, rgba(40, 92, 130, 0.16), transparent 60%),
     var(--bg);
+  background-attachment: fixed;
   color: var(--text);
-  font-family: var(--font);
-  font-size: clamp(15px, 0.6vw + 13px, 18px);
-  line-height: 1.5;
+  font-family: var(--f-body);
+  font-size: clamp(15px, 0.55vw + 13.4px, 18px);
+  line-height: 1.55;
   -webkit-font-smoothing: antialiased;
 }
 
 .page {
-  max-width: 1400px;
+  max-width: 1440px;
   margin: 0 auto;
-  padding: clamp(20px, 3vw, 44px) clamp(16px, 3vw, 40px) 64px;
+  padding: clamp(20px, 3vw, 46px) clamp(16px, 3vw, 44px) 72px;
 }
 
 /* ---------- Sidhuvud ---------- */
@@ -65,111 +77,138 @@ body {
 .masthead {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-  gap: 20px;
-  padding-bottom: 22px;
+  gap: 18px 24px;
+  padding-bottom: 20px;
   border-bottom: 1px solid var(--line-soft);
 }
 
 .masthead__identity {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: clamp(14px, 2vw, 22px);
+  min-width: 0;
 }
 
-/* Globen, förenklad till sin siluett. */
+/* Globen. Glöden är byggnadens strålkastare mot natthimlen. */
 .globe {
-  width: clamp(34px, 3vw, 46px);
+  display: block;
+  width: clamp(52px, 7vw, 84px);
   aspect-ratio: 1;
-  border-radius: 50%;
-  background: radial-gradient(circle at 34% 30%, #ffd478, var(--avicii) 52%, #a8620a);
-  box-shadow: 0 0 26px rgba(245, 165, 36, 0.3);
   flex: none;
+  border-radius: 50%;
+  filter: drop-shadow(0 0 26px rgba(245, 165, 36, 0.34));
+}
+
+.globe svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.masthead__words {
+  min-width: 0;
 }
 
 .masthead h1 {
   margin: 0;
-  font-size: clamp(1.5rem, 2.4vw, 2.1rem);
-  font-weight: 650;
-  letter-spacing: -0.02em;
+  font-family: var(--f-display);
+  font-size: clamp(1.75rem, 4vw, 2.9rem);
+  font-weight: 700;
+  letter-spacing: 0.005em;
+  line-height: 0.98;
+  text-transform: uppercase;
 }
 
 .masthead__places {
-  margin: 2px 0 0;
+  margin: 5px 0 0;
   color: var(--text-faint);
-  font-size: 0.83rem;
-  letter-spacing: 0.02em;
+  font-size: clamp(0.72rem, 1vw, 0.82rem);
+  font-weight: 500;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
 }
 
 .masthead__meta {
-  text-align: right;
   margin-left: auto;
+  text-align: right;
 }
 
 .masthead__date {
   margin: 0;
   color: var(--text-dim);
-  font-size: 0.95rem;
-}
-
-/* Bara veckodagen får versal. Svenskan skriver "31 augusti", inte "31 Augusti". */
-.masthead__date::first-letter {
+  font-size: 0.86rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
 }
 
 .masthead__clock {
-  margin: 2px 0 0;
-  font-family: var(--font-num);
-  font-size: clamp(1.4rem, 2.2vw, 1.9rem);
+  margin: 0;
+  font-family: var(--f-display);
+  font-size: clamp(2rem, 4.4vw, 3.2rem);
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
-  letter-spacing: -0.01em;
+  line-height: 1;
+  letter-spacing: 0.01em;
 }
 
 /* ---------- Rubrikrad ---------- */
 
 .headline {
-  margin: clamp(24px, 3vw, 38px) 0 clamp(18px, 2vw, 26px);
-  font-size: clamp(1.35rem, 3vw, 2.1rem);
+  margin: clamp(24px, 3.4vw, 40px) 0 clamp(20px, 2.4vw, 30px);
+  max-width: 34ch;
+  font-family: var(--f-display);
+  font-size: clamp(1.7rem, 4vw, 2.6rem);
   font-weight: 600;
-  letter-spacing: -0.02em;
-  line-height: 1.25;
+  line-height: 1.08;
+  letter-spacing: 0.005em;
   text-wrap: balance;
 }
 
+/* Antalet som pågår är rubrikens poäng — det får inte brytas mitt itu. */
 .headline em {
   font-style: normal;
   color: var(--live);
+  white-space: nowrap;
 }
 
 /* ---------- Sektioner ---------- */
 
 .section {
-  margin-bottom: clamp(28px, 4vw, 48px);
+  margin-bottom: clamp(26px, 3.6vw, 46px);
 }
 
 .section__heading {
   display: flex;
   align-items: center;
-  gap: 11px;
-  margin: 0 0 16px;
-  font-size: 0.79rem;
-  font-weight: 650;
-  letter-spacing: 0.13em;
+  gap: 14px;
+  margin: 0 0 14px;
+  font-family: var(--f-display);
+  font-size: 0.92rem;
+  font-weight: 600;
+  letter-spacing: 0.19em;
   text-transform: uppercase;
   color: var(--text-faint);
 }
 
+/*
+ * Sågtandstaket från slakthushallarna. Lutande takfall, lodrätt fönsterband —
+ * profilen som ger norrljus in i hallarna, och områdets tydligaste siluett.
+ */
 .section__rule {
   flex: 1;
-  height: 1px;
-  background: var(--line-soft);
+  height: 7px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='7' viewBox='0 0 8 7'%3E%3Cpath d='M0 6.5 L8 1 L8 6.5' fill='none' stroke='%232B3546' stroke-width='1'/%3E%3C/svg%3E");
+  background-repeat: repeat-x;
+  background-position: left bottom;
 }
 
 .grid {
   display: grid;
-  gap: 14px;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 310px), 1fr));
+  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
 }
 
 /* ---------- Evenemangskort ---------- */
@@ -178,18 +217,20 @@ body {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 11px;
-  padding: 18px 18px 16px;
-  background: var(--surface);
+  gap: 10px;
+  padding: 16px 18px 15px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.028), transparent 46%),
+    var(--surface);
   border: 1px solid var(--line);
-  border-radius: var(--radius);
+  border-radius: var(--radius-lg);
   overflow: hidden;
   text-decoration: none;
   color: inherit;
-  transition: border-color 0.18s ease, transform 0.18s ease, background 0.18s ease;
+  transition: border-color 0.16s ease, transform 0.16s ease, background 0.16s ease;
 }
 
-/* Platsens accent som en stapel längs kortets vänsterkant. */
+/* Platsens accent som en skyltkant längs kortet. */
 .card::before {
   content: "";
   position: absolute;
@@ -200,79 +241,90 @@ body {
 
 .card:hover,
 .card:focus-visible {
-  border-color: color-mix(in srgb, var(--accent, var(--line)) 45%, var(--line));
+  border-color: color-mix(in srgb, var(--accent, var(--line)) 48%, var(--line));
   background: var(--surface-raised);
   transform: translateY(-2px);
   outline: none;
 }
 
 .card--live {
-  background: linear-gradient(180deg, var(--live-glow), transparent 55%), var(--surface);
-  border-color: color-mix(in srgb, var(--live) 34%, var(--line));
+  background:
+    linear-gradient(180deg, var(--live-glow), transparent 52%),
+    var(--surface);
+  border-color: color-mix(in srgb, var(--live) 36%, var(--line));
 }
 
 .card--done {
-  opacity: 0.42;
+  opacity: 0.4;
 }
 
 .card__top {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: 12px;
 }
 
+/* Avgångstavlan: tiden är det man ska kunna läsa på avstånd. */
 .card__time {
-  font-family: var(--font-num);
-  font-size: clamp(1.5rem, 2.4vw, 1.95rem);
+  font-family: var(--f-display);
+  font-size: clamp(2rem, 3.4vw, 2.7rem);
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
-  letter-spacing: -0.02em;
-  line-height: 1;
+  line-height: 0.92;
+  letter-spacing: 0.01em;
 }
 
 .card__title {
   margin: 0;
-  font-size: clamp(1.02rem, 1.3vw, 1.2rem);
+  font-size: clamp(1rem, 1.2vw, 1.12rem);
   font-weight: 600;
-  letter-spacing: -0.01em;
-  line-height: 1.3;
+  line-height: 1.28;
+  letter-spacing: -0.003em;
   text-wrap: balance;
 }
 
 .card__subtitle {
-  margin: 3px 0 0;
+  margin: 2px 0 0;
   color: var(--text-faint);
-  font-size: 0.85rem;
+  font-size: 0.84rem;
 }
 
 .card__foot {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
+  gap: 8px 10px;
   margin-top: auto;
-  padding-top: 3px;
+  padding-top: 2px;
 }
 
+/*
+ * Scennamnet som skyltplåt. Slakthusområdet är fullt av målad skyltning på
+ * fasaderna, och kvadratiska hörn läser som plåt där rundade läser som app.
+ */
 .venue {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 3px 10px 3px 8px;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--accent, var(--line)) 14%, transparent);
-  color: color-mix(in srgb, var(--accent, var(--text)) 78%, var(--text));
-  font-size: 0.78rem;
-  font-weight: 550;
+  gap: 7px;
+  padding: 3px 9px 3px 7px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--accent, var(--line)) 13%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent, var(--line)) 26%, transparent);
+  color: color-mix(in srgb, var(--accent, var(--text)) 76%, var(--text));
+  font-size: 0.71rem;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
   white-space: nowrap;
 }
 
 .venue::before {
   content: "";
-  width: 6px;
-  aspect-ratio: 1;
-  border-radius: 50%;
+  width: 5px;
+  height: 5px;
   background: var(--accent, var(--text-faint));
+  flex: none;
 }
 
 .meta {
@@ -286,52 +338,60 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 0.72rem;
-  font-weight: 650;
-  letter-spacing: 0.07em;
+  padding: 4px 9px;
+  border-radius: 2px;
+  font-family: var(--f-display);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.13em;
   text-transform: uppercase;
   white-space: nowrap;
 }
 
+/* Ett tänt skyltljus, inte en etikett. */
 .badge--live {
-  background: color-mix(in srgb, var(--live) 17%, transparent);
-  color: #ff9d97;
+  background: color-mix(in srgb, var(--live) 20%, transparent);
+  border: 1px solid color-mix(in srgb, var(--live) 42%, transparent);
+  color: #ffb3a8;
+  box-shadow: 0 0 18px -4px color-mix(in srgb, var(--live) 55%, transparent);
 }
 
 .badge--soon {
-  background: color-mix(in srgb, var(--avicii) 14%, transparent);
-  color: #f7c169;
+  background: color-mix(in srgb, var(--avicii) 15%, transparent);
+  border: 1px solid color-mix(in srgb, var(--avicii) 30%, transparent);
+  color: #f8c86f;
 }
 
 .pulse {
-  width: 7px;
-  aspect-ratio: 1;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   background: var(--live);
   animation: pulse 1.9s ease-in-out infinite;
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(255, 95, 86, 0.5); }
-  50% { opacity: 0.62; box-shadow: 0 0 0 6px rgba(255, 95, 86, 0); }
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(255, 95, 78, 0.55); }
+  50% { opacity: 0.55; box-shadow: 0 0 0 6px rgba(255, 95, 78, 0); }
 }
 
 /* ---------- Tomt läge ---------- */
 
 .empty {
-  padding: clamp(28px, 5vw, 52px);
+  padding: clamp(30px, 5vw, 56px);
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: var(--radius);
+  border-radius: var(--radius-lg);
   text-align: center;
 }
 
 .empty__lead {
   margin: 0 0 6px;
-  font-size: clamp(1.1rem, 1.8vw, 1.35rem);
+  font-family: var(--f-display);
+  font-size: clamp(1.3rem, 2.4vw, 1.8rem);
   font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
 }
 
 .empty__sub {
@@ -342,7 +402,7 @@ body {
 /* ---------- Källhälsa ---------- */
 
 .sources {
-  margin-top: clamp(30px, 4vw, 52px);
+  margin-top: clamp(28px, 4vw, 52px);
   padding-top: 18px;
   border-top: 1px solid var(--line-soft);
   color: var(--text-faint);
@@ -352,8 +412,8 @@ body {
 .sources__list {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px 18px;
-  margin: 0 0 10px;
+  gap: 8px 16px;
+  margin: 0 0 12px;
   padding: 0;
   list-style: none;
 }
@@ -362,13 +422,14 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 7px;
+  font-size: 0.76rem;
+  letter-spacing: 0.03em;
 }
 
 .sources__item::before {
   content: "";
-  width: 6px;
-  aspect-ratio: 1;
-  border-radius: 50%;
+  width: 5px;
+  height: 5px;
   background: #3ecf8e;
   flex: none;
 }
@@ -378,34 +439,30 @@ body {
 }
 
 .sources__item--down {
-  color: #ff9d97;
+  color: #ff9d90;
 }
 
 /* Klickbara källor: siffran "6 event" säger inte vilka, så den fäller ut listan. */
 .sources__item--button {
-  padding: 3px 9px 3px 8px;
-  margin: -3px -9px -3px -8px;
+  padding: 4px 9px;
+  margin: -4px -9px;
   background: none;
   border: 1px solid transparent;
-  border-radius: 999px;
+  border-radius: 2px;
   color: inherit;
   font: inherit;
+  letter-spacing: 0.03em;
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
 }
 
 .sources__item--button:hover,
-.sources__item--button:focus-visible {
-  background: var(--surface-raised);
-  border-color: var(--line);
-  color: var(--text);
-  outline: none;
-}
-
+.sources__item--button:focus-visible,
 .sources__item--button.is-open {
   background: var(--surface-raised);
   border-color: var(--line);
   color: var(--text);
+  outline: none;
 }
 
 /* ---------- Utfälld källista ---------- */
@@ -414,25 +471,27 @@ body {
   margin: 4px 0 14px;
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius);
   overflow: hidden;
 }
 
 .detail__caption {
   margin: 0;
-  padding: 11px 14px;
+  padding: 10px 14px;
   border-bottom: 1px solid var(--line-soft);
-  color: var(--text-dim);
-  font-size: 0.76rem;
-  letter-spacing: 0.05em;
+  font-family: var(--f-display);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
+  color: var(--text-dim);
 }
 
 .detail__rows {
   /* Slakthusen levererar närmare hundra rader — panelen får rulla, inte sidan. */
   max-height: min(52vh, 420px);
   margin: 0;
-  padding: 4px 0;
+  padding: 3px 0;
   list-style: none;
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -457,7 +516,7 @@ body {
 
 .detail__row--today .detail__date {
   color: var(--live);
-  font-weight: 650;
+  font-weight: 600;
 }
 
 .detail__date {
@@ -466,7 +525,9 @@ body {
 }
 
 .detail__time {
-  font-family: var(--font-num);
+  font-family: var(--f-display);
+  font-size: 0.94rem;
+  font-weight: 600;
   font-variant-numeric: tabular-nums;
   color: var(--text-dim);
 }
@@ -488,10 +549,9 @@ body {
   white-space: nowrap;
 }
 
-/* På smal skärm får scenen flytta ned under namnet i stället för att klämmas. */
 @media (max-width: 560px) {
   .detail__row {
-    grid-template-columns: 5.2rem 3.2rem 1fr;
+    grid-template-columns: 6.2rem 3.2rem 1fr;
   }
 
   .detail__venue {
@@ -502,19 +562,18 @@ body {
 
 .sources__note {
   margin: 0;
-  max-width: 68ch;
-  line-height: 1.55;
+  max-width: 70ch;
+  line-height: 1.5;
 }
 
 .sources__error {
   margin: 8px 0 0;
-  padding: 10px 13px;
+  padding: 9px 12px;
   background: color-mix(in srgb, var(--live) 9%, transparent);
   border-left: 2px solid var(--live);
-  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-  color: #ffb3ad;
-  font-family: var(--font-num);
-  font-size: 0.74rem;
+  border-radius: 0 var(--radius) var(--radius) 0;
+  color: #ffb3a8;
+  font-size: 0.75rem;
   word-break: break-word;
 }
 
@@ -522,16 +581,21 @@ body {
 
 .skeleton {
   display: grid;
-  gap: 14px;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 310px), 1fr));
+  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
 }
 
 .skeleton__card {
-  height: 148px;
-  background: linear-gradient(100deg, var(--surface) 30%, var(--surface-raised) 50%, var(--surface) 70%);
+  height: 142px;
+  background: linear-gradient(
+    100deg,
+    var(--surface) 30%,
+    var(--surface-raised) 50%,
+    var(--surface) 70%
+  );
   background-size: 220% 100%;
   border: 1px solid var(--line);
-  border-radius: var(--radius);
+  border-radius: var(--radius-lg);
   animation: shimmer 1.5s linear infinite;
 }
 
@@ -557,6 +621,6 @@ body {
   }
 
   .grid {
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 350px), 1fr));
   }
 }
